@@ -1,11 +1,13 @@
 pub mod day_one;
+pub mod day_two;
 use clap::{Parser, Subcommand};
 use std::fs;
 
 
 #[derive(Debug, Subcommand)]
 enum Day {
-    One {}
+    One,
+    Two
 }
 
 #[derive(Parser, Debug)]
@@ -24,8 +26,11 @@ fn main() {
     let input = fs::read_to_string(file)
         .expect("Should have been able to read the file");
     match &cli.day {
-        Some(Day::One {}) => {
+        Some(Day::One) => {
             day_one::solve(input);
+        }
+        Some(Day::Two) => {
+            day_two::solve(input);
         }
         None => {}
     }
