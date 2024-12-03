@@ -22,15 +22,19 @@ pub fn solve(input: String) {
 
 
 
-fn sum_distances(a: &mut [u32], b: &mut [u32]) -> u32 {
+fn sum_distances(a: &[u32], b: &[u32]) -> u32 {
     assert!(a.len() == b.len());
-    a.sort();
-    b.sort();
+    let mut left = a.to_vec();
+    let mut right = b.to_vec();
+
+    left.sort();
+    right.sort();
+
 
     let mut sum = 0;
-    let zipped = a.into_iter().zip_eq(b.into_iter());
-    for (left, right) in zipped {
-        sum += left.abs_diff(*right)
+    let zipped = left.into_iter().zip_eq(right.into_iter());
+    for (x, y) in zipped {
+        sum += x.abs_diff(y)
     }
     sum
 }
@@ -43,8 +47,8 @@ mod tests {
 
     #[test]
     fn test_sum_distance() {
-        let mut left = [3, 4, 2, 1, 3, 3];
-        let mut right = [4, 3, 5, 3, 9, 3];
-        assert_eq!(sum_distances(left.as_mut_slice(), right.as_mut_slice()), 11);
+        let left = [3, 4, 2, 1, 3, 3];
+        let right = [4, 3, 5, 3, 9, 3];
+        assert_eq!(sum_distances(left.as_slice(), right.as_slice()), 11);
     }
 }
