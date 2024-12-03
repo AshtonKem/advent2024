@@ -1,3 +1,5 @@
+use std::{collections::HashMap, iter::Map};
+
 use itertools::Itertools;
 
 
@@ -16,7 +18,8 @@ pub fn solve(input: String) {
                   .parse::<u32>()
                    .expect("Should be a number"));
     }
-    println!("Simple solution: {}", sum_distances(left.as_mut_slice(), right.as_mut_slice()));
+    println!("Simple solution: {}", sum_distances(left.as_slice(), right.as_slice()));
+    println!("Extra solution: {}", similarity_score(left.as_slice(), right.as_slice()));
 }
 
 
@@ -39,6 +42,22 @@ fn sum_distances(a: &[u32], b: &[u32]) -> u32 {
     sum
 }
 
+fn similarity_score(a: &[u32], b: &[u32]) -> u32 {
+    let mut right_count: HashMap<u32, u32> = HashMap::new();
+    let mut sum = 0;
+    for value in b {
+        let new_value = 1 + right_count.get(value).map_or(0, |x| x.to_owned());
+        right_count.insert(value.to_owned(), new_value);
+    }
+
+    for value in a {
+        sum += right_count.get(value).map_or(0, |x| x.to_owned()) * value.to_owned()
+    }
+    sum
+}
+
+
+
 
 #[cfg(test)]
 mod tests {
@@ -50,5 +69,12 @@ mod tests {
         let left = [3, 4, 2, 1, 3, 3];
         let right = [4, 3, 5, 3, 9, 3];
         assert_eq!(sum_distances(left.as_slice(), right.as_slice()), 11);
+    }
+
+    #[test]
+    fn test_similarity_scores() {
+        let left = [3, 4, 2, 1, 3, 3];
+        let right = [4, 3, 5, 3, 9, 3];
+        assert_eq!(similarity_score(left.as_slice(), right.as_slice()), 31);
     }
 }
