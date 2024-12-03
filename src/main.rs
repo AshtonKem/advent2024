@@ -1,4 +1,5 @@
 pub mod day_one;
+pub mod day_three;
 pub mod day_two;
 use clap::{Parser, Subcommand};
 use std::fs;
@@ -7,6 +8,7 @@ use std::fs;
 enum Day {
     One,
     Two,
+    Three,
 }
 
 #[derive(Parser, Debug)]
@@ -28,6 +30,9 @@ fn main() {
         }
         Some(Day::Two) => {
             day_two::solve(input);
+        }
+        Some(Day::Three) => {
+            day_three::solve(input);
         }
         None => {}
     }
