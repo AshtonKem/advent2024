@@ -40,7 +40,7 @@ fn safe_report(report: &[u32]) -> bool {
 }
 
 fn safe_report_damped(report: &[u32]) -> bool {
-    if (safe_report(report)) {
+    if safe_report(report) {
         true
     } else {
         for index in (Range {
@@ -49,7 +49,7 @@ fn safe_report_damped(report: &[u32]) -> bool {
         }) {
             let mut report_copy: Vec<u32> = report.to_vec();
             report_copy.remove(index);
-            if (safe_report(report_copy.as_slice())) {
+            if safe_report(report_copy.as_slice()) {
                 return true;
             }
         }
