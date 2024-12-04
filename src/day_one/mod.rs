@@ -42,7 +42,7 @@ fn sum_distances(a: &[u32], b: &[u32]) -> u32 {
     right.sort();
 
     let mut sum = 0;
-    let zipped = left.into_iter().zip_eq(right.into_iter());
+    let zipped = left.into_iter().zip_eq(right);
     for (x, y) in zipped {
         sum += x.abs_diff(y)
     }

@@ -1,6 +1,11 @@
 use regex::Regex;
 use std::str::FromStr;
 
+pub fn solve(input: String) {
+    println!("Simple sum: {}", add_matches(&input));
+    println!("Extended sum: {}", add_matches_extended(&input));
+}
+
 #[derive(Debug)]
 struct Mul {
     a: u32,
@@ -33,18 +38,18 @@ fn multiply(mul: &Mul) -> u32 {
     mul.a * mul.b
 }
 
-fn find_matches(input: &String) -> Vec<Mul> {
+fn find_matches(input: &str) -> Vec<Mul> {
     let re = Regex::new(r"mul\((\d*)\,(\d*)\)").unwrap();
     re.find_iter(input)
         .map(|f| f.as_str().parse::<Mul>().expect("Should parse into mul"))
         .collect()
 }
 
-fn find_matches_extended(input: &String) -> Vec<Mul> {
+fn find_matches_extended(input: &str) -> Vec<Mul> {
     let mut active = true;
     let re = Regex::new(r"(mul\((\d*)\,(\d*)\))|don't\(\)|do\(\)").unwrap();
     re.find_iter(input)
-        .map(|f| {
+        .filter_map(|f| {
             let m = f.as_str();
             if m == "do()" {
                 active = true;
@@ -58,23 +63,17 @@ fn find_matches_extended(input: &String) -> Vec<Mul> {
                 m.parse::<Mul>().ok()
             }
         })
-        .flatten()
         .collect()
 }
 
-pub fn solve(input: String) {
-    println!("Simple sum: {}", add_matches(&input));
-    println!("Extended sum: {}", add_matches_extended(&input));
-}
-
-fn add_matches(input: &String) -> u32 {
+fn add_matches(input: &str) -> u32 {
     find_matches(input)
         .into_iter()
         .map(|mul| multiply(&mul))
         .sum()
 }
 
-fn add_matches_extended(input: &String) -> u32 {
+fn add_matches_extended(input: &str) -> u32 {
     find_matches_extended(input)
         .into_iter()
         .map(|mul| multiply(&mul))
@@ -89,10 +88,7 @@ mod tests {
     fn test_add_matches() {
         assert_eq!(
             161,
-            add_matches(
-                &"xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
-                    .to_string()
-            )
+            add_matches("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
         );
     }
 
@@ -101,8 +97,7 @@ mod tests {
         assert_eq!(
             48,
             add_matches_extended(
-                &"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
-                    .to_string()
+                "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
             )
         );
     }

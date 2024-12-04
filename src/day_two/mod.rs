@@ -3,15 +3,18 @@ use std::ops::Range;
 use itertools::Itertools;
 
 pub fn solve(input: String) {
-    let data = input.lines().map(|line| parse_report(line)).collect();
-    println!("Number of safe reports: {}", count_safe_reports(&data));
+    let data: Vec<Vec<u32>> = input.lines().map(parse_report).collect();
+    println!(
+        "Number of safe reports: {}",
+        count_safe_reports(data.as_slice())
+    );
     println!(
         "Number of safe reports (damped): {}",
-        count_safe_reports_damped(&data)
+        count_safe_reports_damped(data.as_slice())
     );
 }
 
-fn count_safe_reports(input: &Vec<Vec<u32>>) -> u32 {
+fn count_safe_reports(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| safe_report(report.as_slice()))
@@ -20,7 +23,7 @@ fn count_safe_reports(input: &Vec<Vec<u32>>) -> u32 {
         .unwrap()
 }
 
-fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
+fn count_safe_reports_damped(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| safe_report_damped(report.as_slice()))
@@ -58,16 +61,16 @@ fn safe_report_damped(report: &[u32]) -> bool {
 }
 
 fn increasing(report: &[u32]) -> bool {
-    report.into_iter().tuple_windows().all(|(a, b)| a < b)
+    report.iter().tuple_windows().all(|(a, b)| a < b)
 }
 
 fn decreasing(report: &[u32]) -> bool {
-    report.into_iter().tuple_windows().all(|(a, b)| a > b)
+    report.iter().tuple_windows().all(|(a, b)| a > b)
 }
 
 fn ranges(report: &[u32]) -> bool {
     report
-        .into_iter()
+        .iter()
         .tuple_windows()
         .all(|(a, b)| 1 <= a.abs_diff(*b) && 3 >= a.abs_diff(*b))
 }
