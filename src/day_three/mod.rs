@@ -1,6 +1,5 @@
-use std::str::FromStr;
-
 use regex::Regex;
+use std::str::FromStr;
 
 #[derive(Debug)]
 struct Mul {
@@ -41,12 +40,42 @@ fn find_matches(input: &String) -> Vec<Mul> {
         .collect()
 }
 
+fn find_matches_extended(input: &String) -> Vec<Mul> {
+    let mut active = true;
+    let re = Regex::new(r"(mul\((\d*)\,(\d*)\))|don't\(\)|do\(\)").unwrap();
+    re.find_iter(input)
+        .map(|f| {
+            let m = f.as_str();
+            if m == "do()" {
+                active = true;
+                None
+            } else if m == "don't()" {
+                active = false;
+                None
+            } else if !active {
+                None
+            } else {
+                m.parse::<Mul>().ok()
+            }
+        })
+        .flatten()
+        .collect()
+}
+
 pub fn solve(input: String) {
     println!("Simple sum: {}", add_matches(&input));
+    println!("Extended sum: {}", add_matches_extended(&input));
 }
 
 fn add_matches(input: &String) -> u32 {
     find_matches(input)
+        .into_iter()
+        .map(|mul| multiply(&mul))
+        .sum()
+}
+
+fn add_matches_extended(input: &String) -> u32 {
+    find_matches_extended(input)
         .into_iter()
         .map(|mul| multiply(&mul))
         .sum()
@@ -62,6 +91,17 @@ mod tests {
             161,
             add_matches(
                 &"xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
+                    .to_string()
+            )
+        );
+    }
+
+    #[test]
+    fn test_add_matches_extended() {
+        assert_eq!(
+            48,
+            add_matches_extended(
+                &"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
                     .to_string()
             )
         );
