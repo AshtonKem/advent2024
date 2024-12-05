@@ -3,6 +3,7 @@ use array2d::Array2D;
 pub fn solve(input: String) {
     let matrix = build_array(&input);
     println!("Matches: {}", count_matches(&matrix));
+    println!("X-Mas: {}", count_mas(&matrix));
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -12,8 +13,16 @@ struct Point {
 }
 
 fn count_matches(matrix: &Array2D<char>) -> usize {
-    let xs = find_xs(matrix);
+    let xs = find_character(matrix, 'X');
     xs.iter().map(|point| match_count(matrix, point)).sum()
+}
+
+fn count_mas(matrix: &Array2D<char>) -> usize {
+    let positions = find_character(matrix, 'A');
+    positions
+        .iter()
+        .filter(|point| match_x_mas(matrix, point))
+        .count()
 }
 
 fn build_array(input: &str) -> Array2D<char> {
@@ -23,16 +32,42 @@ fn build_array(input: &str) -> Array2D<char> {
     Array2D::from_rows(chars.as_slice()).unwrap()
 }
 
-fn find_xs(matrix: &Array2D<char>) -> Vec<Point> {
+fn find_character(matrix: &Array2D<char>, search_char: char) -> Vec<Point> {
     let mut result = Vec::new();
     for (y, row_iter) in matrix.rows_iter().enumerate() {
         for (x, elem) in row_iter.enumerate() {
-            if *elem == 'X' {
+            if *elem == search_char {
                 result.push(Point { x, y });
             }
         }
     }
     result
+}
+
+fn match_x_mas(matrix: &Array2D<char>, point: &Point) -> bool {
+    if point.x >= 1 && point.y >= 1 {
+        let diag_one: String = [
+            matrix.get(point.y - 1, point.x - 1),
+            matrix.get(point.y, point.x),
+            matrix.get(point.y + 1, point.x + 1),
+        ]
+        .iter()
+        .filter_map(|p| *p)
+        .collect();
+
+        let diag_two: String = [
+            matrix.get(point.y + 1, point.x - 1),
+            matrix.get(point.y, point.x),
+            matrix.get(point.y - 1, point.x + 1),
+        ]
+        .iter()
+        .filter_map(|p| *p)
+        .collect();
+
+        (diag_one == "MAS" || diag_one == "SAM") && (diag_two == "SAM" || diag_two == "MAS")
+    } else {
+        false
+    }
 }
 
 fn match_left(matrix: &Array2D<char>, point: &Point) -> bool {
@@ -131,11 +166,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_find_xs() {
-        assert_eq!(vec![Point { x: 0, y: 0 }], find_xs(&build_array("X")));
+    fn test_find_character() {
+        assert_eq!(
+            vec![Point { x: 0, y: 0 }],
+            find_character(&build_array("X"), 'X')
+        );
         assert_eq!(
             vec![Point { x: 3, y: 0 }, Point { x: 0, y: 1 }],
-            find_xs(&build_array("abcX\nXabc"))
+            find_character(&build_array("abcX\nXabc"), 'X')
         );
     }
 
@@ -158,5 +196,23 @@ mod tests {
     fn test_count_matches() {
         let matrix = build_array("MMMSXXMASM\nMSAMXMSMSA\nAMXSXMAAMM\nMSAMASMSMX\nXMASAMXAMM\nXXAMMXXAMA\nSMSMSASXSS\nSAXAMASAAA\nMAMMMXMMMM\nMXMXAXMASX");
         assert_eq!(18, count_matches(&matrix));
+    }
+
+    #[test]
+    fn test_mas() {
+        let matrix = build_array(
+            ".M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........",
+        );
+        assert!(match_x_mas(&matrix, &Point { x: 2, y: 1 }));
+        assert_eq!(9, count_mas(&matrix));
     }
 }
