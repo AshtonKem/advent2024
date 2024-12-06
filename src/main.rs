@@ -1,3 +1,4 @@
+pub mod day_five;
 pub mod day_four;
 pub mod day_one;
 pub mod day_three;
@@ -11,6 +12,7 @@ enum Day {
     Two,
     Three,
     Four,
+    Five,
 }
 
 #[derive(Parser, Debug)]
@@ -38,6 +40,9 @@ fn main() {
         }
         Some(Day::Four) => {
             day_four::solve(input);
+        }
+        Some(Day::Five) => {
+            day_five::solve(input);
         }
         None => {}
     }
